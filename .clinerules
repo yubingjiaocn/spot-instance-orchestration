@@ -1,0 +1,118 @@
+# Cline Rules: AWS Spot Instance Management System
+
+## Project Patterns
+
+### File Organization
+- Terraform configurations in deploy/
+- Source code in src/
+- Docker configurations in docker/
+- Memory bank in memory-bank/
+
+### Naming Conventions
+1. Terraform Resources
+   - Use descriptive names: "spot-instance-step-function-role"
+   - Include resource type in name: "ecs-gpu-lt" for launch template
+   - Region-specific resources append region: "sglang-cluster-{region}"
+
+2. Variables
+   - Use snake_case: worker_regions, spot_finder_lambda_code
+   - Include type in name when not obvious: retry_count vs retry_wait_time
+
+### Code Style
+1. Terraform
+   - Use terraform-aws-modules where available
+   - Region-specific providers in worker modules
+   - Consistent resource grouping by function
+
+2. Shell Scripts
+   - Use named parameters with -- prefix
+   - Include usage information
+   - Validate required parameters
+
+## Implementation Paths
+
+### Deployment Flow
+1. Parse command line arguments
+2. Validate region configurations
+3. Generate terraform.tfvars
+4. Initialize and apply Terraform
+
+### Infrastructure Creation
+1. Hub region setup first
+2. Worker regions in parallel
+3. Cross-region communication setup
+
+### Error Handling
+1. Validate inputs before execution
+2. Use step function retries for transient failures
+3. Clean up resources on failure
+
+## Known Challenges
+
+### Region Management
+- Hub region must be specified
+- Worker regions must be unique
+- Hub can optionally be worker
+
+### Resource Constraints
+- GPU instances require specific AMI
+- EFS mount requires proper security groups
+- Host networking mode required
+
+## Tool Usage Patterns
+
+### Terraform
+```hcl
+# Provider configuration in worker module
+provider "aws" {
+  region = var.region
+}
+
+# Use of community modules
+module "ecs" {
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "~> 5.0"
+}
+```
+
+### Shell Script
+```bash
+# Parameter handling
+--hub        # Hub region
+--worker     # Worker region(s)
+--hub-as-worker  # Optional flag
+```
+
+## Project Evolution
+
+### Phase 1: Core Infrastructure
+- Basic hub-worker setup
+- Spot instance management
+- Cross-region communication
+
+### Phase 2: Optimization
+- Performance improvements
+- Cost optimization
+- Enhanced monitoring
+
+### Phase 3: Scale
+- Additional regions
+- Enhanced features
+- Advanced monitoring
+
+## Learning Points
+
+### Best Practices
+1. Use community modules when available
+2. Keep provider configuration close to usage
+3. Use clear, consistent naming
+
+### Improvements
+1. Shell script parameter handling
+2. Module organization
+3. Resource naming consistency
+
+### Challenges Overcome
+1. Region-specific provider configuration
+2. Cross-region communication
+3. GPU instance requirements

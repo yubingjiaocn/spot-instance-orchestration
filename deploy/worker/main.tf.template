@@ -1,0 +1,57 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+  required_version = ">= 1.0"
+
+  backend "local" {}
+}
+
+provider "aws" {
+  region = var.worker_region
+}
+
+module "worker" {
+  source = "../../modules/worker"
+  region = var.worker_region
+  hub_region = var.hub_region
+  prefix = var.prefix
+  vpc_id = var.vpc_id
+  subnet_ids = var.subnet_ids
+  instance_type = var.instance_type
+}
+
+variable "worker_region" {
+  description = "The AWS region for this worker deployment"
+  type        = string
+}
+
+variable "hub_region" {
+  description = "AWS region where the hub infrastructure is deployed"
+  type        = string
+}
+
+variable "prefix" {
+  description = "Prefix to be added to all resource names"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "VPC ID to deploy resources into"
+  type        = string
+  default     = null
+}
+
+variable "subnet_ids" {
+  description = "List of subnet IDs to deploy resources into"
+  type        = list(string)
+  default     = null
+}
+
+variable "instance_type" {
+  description = "Instance type for spot instance"
+  type        = string
+}
