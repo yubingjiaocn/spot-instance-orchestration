@@ -5,35 +5,35 @@ locals {
   # Common IAM policy statements
   common_iam_policies = {
     autoscaling = {
-      actions = ["autoscaling:SetDesiredCapacity", "autoscaling:DescribeAutoScalingGroups"]
+      actions   = ["autoscaling:SetDesiredCapacity", "autoscaling:DescribeAutoScalingGroups"]
       resources = [module.autoscaling.autoscaling_group_arn]
     },
     lambda = {
-      actions = ["lambda:InvokeFunction"]
+      actions   = ["lambda:InvokeFunction"]
       resources = ["*"]
     }
     ec2_describe = {
-      actions = ["ec2:DescribeInstances"]
+      actions   = ["ec2:DescribeInstances"]
       resources = ["*"]
     }
     ecs_tasks = {
-      actions = ["ecs:ListTasks", "ecs:StopTask", "ecs:RunTask", "ecs:DescribeTasks"]
+      actions   = ["ecs:ListTasks", "ecs:StopTask", "ecs:RunTask", "ecs:DescribeTasks"]
       resources = [module.ecs.cluster_arn, "*"]
     }
     events = {
-      actions = ["events:DescribeRule", "events:PutEvents", "events:PutRule", "events:PutTargets", "events:DeleteRule", "events:RemoveTargets"]
+      actions   = ["events:DescribeRule", "events:PutEvents", "events:PutRule", "events:PutTargets", "events:DeleteRule", "events:RemoveTargets"]
       resources = ["*"]
     }
     ssm = {
-      actions = ["ssm:GetParameter"]
+      actions   = ["ssm:GetParameter"]
       resources = ["*"]
     }
     states = {
-      actions = ["states:StartExecution"]
+      actions   = ["states:StartExecution"]
       resources = ["*"]
     }
     iam_pass = {
-      actions = ["iam:PassRole"]
+      actions   = ["iam:PassRole"]
       resources = ["*"]
     }
     cloudwatch_logs = {

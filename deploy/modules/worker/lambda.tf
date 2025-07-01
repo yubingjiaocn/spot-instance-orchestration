@@ -7,14 +7,14 @@ module "instance_details_lambda" {
   description   = "Lambda function to calculate instance count and retrieve IP addresses"
   handler       = "app.lambda_handler"
   runtime       = "python3.13"
-  memory_size = 512
-  timeout = 30
+  memory_size   = 512
+  timeout       = 30
 
   source_path = "${path.module}/../../../src/worker/get_instance_from_asg"
 
   environment_variables = {
-    PREFIX = var.prefix
-    ASG_NAME = module.autoscaling.autoscaling_group_name
+    PREFIX     = var.prefix
+    ASG_NAME   = module.autoscaling.autoscaling_group_name
     HUB_REGION = var.hub_region
   }
 
@@ -24,23 +24,23 @@ module "instance_details_lambda" {
   attach_policy_statements = true
   policy_statements = {
     autoscaling = {
-      effect = "Allow",
-      actions = ["autoscaling:DescribeAutoScalingGroups"],
+      effect    = "Allow",
+      actions   = ["autoscaling:DescribeAutoScalingGroups"],
       resources = ["*"]
     },
     ec2_describe = {
-      effect = "Allow",
-      actions = ["ec2:DescribeInstances"],
+      effect    = "Allow",
+      actions   = ["ec2:DescribeInstances"],
       resources = ["*"]
     },
     events = {
-      effect = "Allow",
-      actions = ["events:PutEvents"],
+      effect    = "Allow",
+      actions   = ["events:PutEvents"],
       resources = ["*"]
     }
     ssm_params = {
-      effect = "Allow",
-      actions = ["ssm:PutParameter", "ssm:GetParameter"],
+      effect    = "Allow",
+      actions   = ["ssm:PutParameter", "ssm:GetParameter"],
       resources = ["*"]
     }
   }

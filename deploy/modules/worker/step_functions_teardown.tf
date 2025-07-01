@@ -3,7 +3,7 @@ module "teardown_instance_step_function" {
   source  = "terraform-aws-modules/step-functions/aws"
   version = "~> 4.2"
 
-  name     = "${var.prefix}-${var.region}-teardown-spot-instance"
+  name = "${var.prefix}-${var.region}-teardown-spot-instance"
 
   # Create IAM role for Step Function
   create_role = true
@@ -25,7 +25,7 @@ module "teardown_instance_step_function" {
     StartAt = "ListTasks"
     States = {
       ListTasks = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::aws-sdk:ecs:listTasks"
         Parameters = {
           Cluster = module.ecs.cluster_arn
@@ -36,30 +36,30 @@ module "teardown_instance_step_function" {
         Type = "Choice"
         Choices = [
           {
-            Variable = "$.taskArns[0]"
+            Variable  = "$.taskArns[0]"
             IsPresent = true
-            Next = "StopTasks"
+            Next      = "StopTasks"
           }
         ],
         Default = "SetASGCapacityToZero"
       }
       StopTasks = {
-        Type = "Map"
+        Type      = "Map"
         ItemsPath = "$.taskArns"
         Parameters = {
-          "taskArn.$": "$$.Map.Item.Value"
-          "cluster": module.ecs.cluster_arn
+          "taskArn.$" : "$$.Map.Item.Value"
+          "cluster" : module.ecs.cluster_arn
         }
         Iterator = {
           StartAt = "StopTask"
           States = {
             StopTask = {
-              Type = "Task"
+              Type     = "Task"
               Resource = "arn:aws:states:::aws-sdk:ecs:stopTask"
               Parameters = {
-                "Cluster.$": "$.cluster"
-                "Task.$": "$.taskArn"
-                "Reason": "Spot instance provisioning disabled"
+                "Cluster.$" : "$.cluster"
+                "Task.$" : "$.taskArn"
+                "Reason" : "Spot instance provisioning disabled"
               }
               End = true
             }
@@ -68,11 +68,11 @@ module "teardown_instance_step_function" {
         Next = "SetASGCapacityToZero"
       }
       SetASGCapacityToZero = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::aws-sdk:autoscaling:setDesiredCapacity"
         Parameters = {
           AutoScalingGroupName = module.autoscaling.autoscaling_group_name
-          DesiredCapacity = 0
+          DesiredCapacity      = 0
         }
         End = true
       }
@@ -85,9 +85,9 @@ module "teardown_eventbridge" {
   source  = "terraform-aws-modules/eventbridge/aws"
   version = "~> 3.14"
 
-  create_bus = false
-  create_role = true
-  role_name  = "${var.prefix}-${var.region}-teardown-events-role"
+  create_bus        = false
+  create_role       = true
+  role_name         = "${var.prefix}-${var.region}-teardown-events-role"
   attach_sfn_policy = true
   sfn_target_arns   = [module.teardown_instance_step_function.state_machine_arn]
 

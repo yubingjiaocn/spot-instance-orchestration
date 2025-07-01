@@ -1,7 +1,8 @@
+import json
 import os
 from datetime import datetime, timedelta, timezone
+
 import boto3
-import json
 
 ec2 = boto3.client("ec2")
 

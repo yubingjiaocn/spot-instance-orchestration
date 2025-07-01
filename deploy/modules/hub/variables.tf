@@ -22,5 +22,5 @@ variable "instance_type" {
 variable "retry_wait_time" {
   description = "Wait time in seconds before retrying spot instance launch"
   type        = number
-  default     = 600  # 10 minutes
+  default     = 600 # 10 minutes
 }

@@ -7,13 +7,13 @@ module "spot_finder_lambda" {
   description   = "Lambda function to find optimal spot instance regions"
   handler       = "spot_instance_finder.handler"
   runtime       = "python3.13"
-  memory_size = 512
-  timeout = 30
-  source_path = "${path.module}/../../../src/hub/spot_instance_finder"
+  memory_size   = 512
+  timeout       = 30
+  source_path   = "${path.module}/../../../src/hub/spot_instance_finder"
 
   environment_variables = {
-    INSTANCE_TYPE  = var.instance_type
-    ALL_REGIONS    = join(",", var.worker_regions)
+    INSTANCE_TYPE = var.instance_type
+    ALL_REGIONS   = join(",", var.worker_regions)
   }
 
   create_role = true
@@ -70,8 +70,8 @@ module "get_instance_details_lambda" {
   description   = "Lambda function to get spot instance details"
   handler       = "get_instance_details.lambda_handler"
   runtime       = "python3.13"
-  memory_size = 256
-  timeout = 30
+  memory_size   = 256
+  timeout       = 30
 
   environment_variables = {
     PREFIX = "${var.prefix}"
@@ -115,17 +115,17 @@ module "toggle_provisioning_lambda" {
   description   = "Lambda function to toggle spot instance provisioning"
   handler       = "toggle_provisioning.lambda_handler"
   runtime       = "python3.13"
-  memory_size = 256
-  timeout = 30
+  memory_size   = 256
+  timeout       = 30
 
   source_path = "${path.module}/../../../src/hub/toggle_provisioning"
 
   environment_variables = {
-    PREFIX = "${var.prefix}"
-    SPOT_ORCHESTRATOR_ARN = module.spot_orchestrator.state_machine_arn
-    ALL_REGIONS    = join(",", var.worker_regions)
+    PREFIX                              = "${var.prefix}"
+    SPOT_ORCHESTRATOR_ARN               = module.spot_orchestrator.state_machine_arn
+    ALL_REGIONS                         = join(",", var.worker_regions)
     SPOT_PROVISIONING_ENABLED_PARAMETER = "/${var.prefix}/provisioning-enabled"
-    EVENTBRIDGE_RULE_NAME = module.hub_eventbridge.eventbridge_rule_arns["${var.prefix}-hub-worker-region-failure"]
+    EVENTBRIDGE_RULE_NAME               = module.hub_eventbridge.eventbridge_rule_arns["${var.prefix}-hub-worker-region-failure"]
   }
 
   create_role = true
@@ -218,9 +218,9 @@ module "api_gateway" {
   description   = "Spot Instance Management API"
   protocol_type = "HTTP"
 
-  create_domain_name = false
+  create_domain_name    = false
   create_domain_records = false
-  create_certificate = false
+  create_certificate    = false
 
   cors_configuration = {
     allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]

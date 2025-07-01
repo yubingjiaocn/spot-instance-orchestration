@@ -25,7 +25,7 @@ module "capacity_monitor_step_function" {
 
   definition = jsonencode({
     QueryLanguage = "JSONata"
-    StartAt = "SetNotify"
+    StartAt       = "SetNotify"
     States = {
       SetNotify = {
         Type = "Choice"
@@ -53,19 +53,19 @@ module "capacity_monitor_step_function" {
         Resource = "arn:aws:states:::lambda:invoke"
         Arguments = {
           FunctionName = module.instance_details_lambda.lambda_function_arn
-          Payload = {}
+          Payload      = {}
         }
-        Next = "CheckInstancesExist"
+        Next   = "CheckInstancesExist"
         Output = "{% $states.result %}"
       }
       CheckInstancesExist = {
         Type = "Choice"
         Choices = [{
           Condition = "{% $states.input.Payload.launched = true %}"
-          Next = "Success"
-        },{
+          Next      = "Success"
+          }, {
           Condition = "{% $states.input.Payload.launched = false %}"
-          Next = "WaitForInstance"
+          Next      = "WaitForInstance"
         }]
         Default = "WaitForInstance"
       }
@@ -78,7 +78,7 @@ module "capacity_monitor_step_function" {
         Type = "Choice"
         Choices = [{
           Condition = "{% $retry_count >= ${var.max_retry_count} %}"
-          Next = "ScaleDown"
+          Next      = "ScaleDown"
         }]
         Default = "IncrementRetryCount"
       }
@@ -105,7 +105,7 @@ module "capacity_monitor_step_function" {
         Choices = [
           {
             Condition = "{% $notify = true %}"
-            Next = "NotifyHubRegion"
+            Next      = "NotifyHubRegion"
           }
         ]
         Default = "Success"
@@ -119,8 +119,8 @@ module "capacity_monitor_step_function" {
             Source       = "${var.prefix}.spotworker"
             DetailType   = "SpotCapacityExhausted"
             Detail = {
-              "operation": "launch_failure"
-              "region": "{% $states.context.Execution.Input.region %}"
+              "operation" : "launch_failure"
+              "region" : "{% $states.context.Execution.Input.region %}"
             }
           }]
         }
@@ -148,8 +148,8 @@ module "cross_region_eventbridge" {
 
   create_bus = false
   # Create IAM role for EventBridge cross-region
-  create_role     = true
-  role_name       = "${var.prefix}-${var.region}-eventbridge-cross-region-worker-role"
+  create_role              = true
+  role_name                = "${var.prefix}-${var.region}-eventbridge-cross-region-worker-role"
   attach_policy_statements = true
   policy_statements = {
     events = {
@@ -165,7 +165,7 @@ module "cross_region_eventbridge" {
     "${var.prefix}-${var.region}-to-hub" = {
       description = "Forward updates to hub region"
       event_pattern = jsonencode({
-        source      = ["${var.prefix}.spotworker"]
+        source = ["${var.prefix}.spotworker"]
       })
     }
   }
@@ -173,8 +173,8 @@ module "cross_region_eventbridge" {
   targets = {
     "${var.prefix}-${var.region}-to-hub" = [
       {
-        name = "send-to-hub"
-        arn  = "arn:aws:events:${var.hub_region}:${data.aws_caller_identity.current.account_id}:event-bus/default"
+        name            = "send-to-hub"
+        arn             = "arn:aws:events:${var.hub_region}:${data.aws_caller_identity.current.account_id}:event-bus/default"
         role_name       = "${var.prefix}-${var.region}-eventbridge-cross-region-worker-role"
         attach_role_arn = true
       }

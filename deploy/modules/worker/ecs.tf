@@ -70,23 +70,23 @@ module "autoscaling" {
 
   name = "${var.prefix}-${var.region}-ecs-gpu-asg"
 
-  vpc_zone_identifier = data.aws_subnets.default.ids
-  min_size              = 0
-  max_size              = var.asg_max_size
-  desired_capacity      = 0
-  health_check_type     = "EC2"
-  force_delete          = true
-  termination_policies  = ["OldestInstance"]
+  vpc_zone_identifier  = data.aws_subnets.default.ids
+  min_size             = 0
+  max_size             = var.asg_max_size
+  desired_capacity     = 0
+  health_check_type    = "EC2"
+  force_delete         = true
+  termination_policies = ["OldestInstance"]
   instance_market_options = {
     market_type = "spot"
   }
 
   # Launch template
-  launch_template_name    = "${var.prefix}-${var.region}-ecs-gpu-lt"
-  update_default_version      = true
+  launch_template_name   = "${var.prefix}-${var.region}-ecs-gpu-lt"
+  update_default_version = true
 
-  image_id          = data.aws_ami.ecs_gpu.id
-  instance_type     = var.instance_type
+  image_id      = data.aws_ami.ecs_gpu.id
+  instance_type = var.instance_type
 
   block_device_mappings = [
     {
@@ -125,11 +125,11 @@ module "autoscaling" {
   enable_monitoring = true
 
   iam_instance_profile_name = module.ecs_instance_role.iam_instance_profile_name
-  security_groups          = [module.autoscaling_sg.security_group_id]
+  security_groups           = [module.autoscaling_sg.security_group_id]
 
   metadata_options = {
     http_endpoint               = "enabled"
-    http_tokens                = "optional"
+    http_tokens                 = "optional"
     http_put_response_hop_limit = 2
   }
 
@@ -227,13 +227,13 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 
 # ECS Task Definition
 resource "aws_ecs_task_definition" "main" {
-  family                = "${var.prefix}-${var.region}-${var.prefix}-task"
-  network_mode          = "host"
-  ipc_mode              = "host"
+  family                   = "${var.prefix}-${var.region}-${var.prefix}-task"
+  network_mode             = "host"
+  ipc_mode                 = "host"
   requires_compatibilities = ["EC2"]
-  memory                = "10240"  # 10 GB in MB
-  cpu                   = "4096"  # 4 vCPU in units
-  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
+  memory                   = "10240" # 10 GB in MB
+  cpu                      = "4096"  # 4 vCPU in units
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {

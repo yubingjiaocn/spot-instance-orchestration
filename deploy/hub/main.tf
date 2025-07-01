@@ -19,8 +19,8 @@ module "hub" {
   providers = {
     aws = aws
   }
-  region = var.hub_region
+  region         = var.hub_region
   worker_regions = var.worker_regions
-  prefix = var.prefix
-  instance_type = var.instance_type
+  prefix         = var.prefix
+  instance_type  = var.instance_type
 }

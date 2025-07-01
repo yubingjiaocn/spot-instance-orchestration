@@ -3,7 +3,7 @@ module "spot_orchestrator" {
   source  = "terraform-aws-modules/step-functions/aws"
   version = "~> 4.2"
 
-  name     = "${var.prefix}-hub-spot-instance-orchestrator"
+  name = "${var.prefix}-hub-spot-instance-orchestrator"
 
   # Create IAM role for Step Function
   create_role = true
@@ -29,13 +29,13 @@ module "spot_orchestrator" {
 
   attach_policy_statements = true
   policy_statements = [{
-    actions = ["ssm:PutParameter", "ssm:DeleteParameter"]
+    actions   = ["ssm:PutParameter", "ssm:DeleteParameter"]
     resources = ["arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/${var.prefix}/*"]
-  },{
-    actions = ["ssm:GetParameter", "ssm:GetParameters", "ssm:DescribeParameters"]
+    }, {
+    actions   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:DescribeParameters"]
     resources = ["*"]
-  },{
-    actions = ["states:ListExecutions", "states:DescribeExecution", "states:StopExecution"]
+    }, {
+    actions   = ["states:ListExecutions", "states:DescribeExecution", "states:StopExecution"]
     resources = ["arn:aws:states:*:${data.aws_caller_identity.current.account_id}:*"]
   }]
 
@@ -70,13 +70,13 @@ module "spot_orchestrator" {
         Type = "Choice"
         Choices = [{
           Condition = "{% $states.input.enabled = 'false' %}"
-          Next = "Success"
+          Next      = "Success"
         }]
         Default = "FindOptimalRegion"
       }
 
       FindOptimalRegion = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::lambda:invoke"
         Arguments = {
           FunctionName = module.spot_finder_lambda.lambda_function_arn
@@ -86,7 +86,7 @@ module "spot_orchestrator" {
         }
         Catch = [{
           ErrorEquals = ["States.ALL"]
-          Next = "WaitAndRetry"
+          Next        = "WaitAndRetry"
         }]
         Next = "CheckSpotFinderResult"
       }
@@ -95,7 +95,7 @@ module "spot_orchestrator" {
         Type = "Choice"
         Choices = [{
           Condition = "{% $states.input.Payload.region != null %}"
-          Next = "WriteProvisioningStatus"
+          Next      = "WriteProvisioningStatus"
           Assign = {
             desired_region = "{% $states.input.Payload.region %}"
           }
@@ -104,47 +104,47 @@ module "spot_orchestrator" {
       }
 
       WriteProvisioningStatus = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::aws-sdk:ssm:putParameter"
         Arguments = {
-          Name  = "/${var.prefix}/status"
-          Type  = "String"
-          Value = "PROVISIONING"
+          Name      = "/${var.prefix}/status"
+          Type      = "String"
+          Value     = "PROVISIONING"
           Overwrite = true
         }
         Next = "WriteRegion"
       }
 
       WriteRegion = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::aws-sdk:ssm:putParameter"
         Arguments = {
-          Name  = "/${var.prefix}/region"
-          Type  = "String"
-          Value = "{% $desired_region %}"
+          Name      = "/${var.prefix}/region"
+          Type      = "String"
+          Value     = "{% $desired_region %}"
           Overwrite = true
         }
         Next = "SendEventToWorker"
       }
 
       SendEventToWorker = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::events:putEvents.waitForTaskToken"
         Arguments = {
           Entries = [{
             EventBusName = "default"
-            Source = "${var.prefix}.spotorchestrator"
-            DetailType = "SpotInstanceRequest"
+            Source       = "${var.prefix}.spotorchestrator"
+            DetailType   = "SpotInstanceRequest"
             Detail = {
-              action = "launch"
-              region = "{% $desired_region %}"
+              action    = "launch"
+              region    = "{% $desired_region %}"
               TaskToken = "{% $states.context.Task.Token %}"
             }
           }]
         }
         Catch = [{
           ErrorEquals = ["States.ALL"]
-          Next = "AddRegionToExcludeList"
+          Next        = "AddRegionToExcludeList"
         }]
         Next = "WriteCompleteStatus"
       }
@@ -158,24 +158,24 @@ module "spot_orchestrator" {
       }
 
       WriteCompleteStatus = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::aws-sdk:ssm:putParameter"
         Arguments = {
-          Name  = "/${var.prefix}/status"
-          Type  = "String"
-          Value = "COMPLETED"
+          Name      = "/${var.prefix}/status"
+          Type      = "String"
+          Value     = "COMPLETED"
           Overwrite = true
         }
         Next = "Success"
       }
 
       WriteNotAvailableStatus = {
-        Type = "Task"
+        Type     = "Task"
         Resource = "arn:aws:states:::aws-sdk:ssm:putParameter"
         Arguments = {
-          Name  = "/${var.prefix}/status"
-          Type  = "String"
-          Value = "NOTAVAILABLE"
+          Name      = "/${var.prefix}/status"
+          Type      = "String"
+          Value     = "NOTAVAILABLE"
           Overwrite = true
         }
         Next = "ResetAndRetry"
@@ -190,14 +190,14 @@ module "spot_orchestrator" {
       }
 
       WaitAndRetry = {
-        Type = "Wait"
+        Type    = "Wait"
         Seconds = var.retry_wait_time
-        Next = "FindOptimalRegion"
+        Next    = "FindOptimalRegion"
       }
 
       Success = {
         Type = "Pass"
-        End = true
+        End  = true
       }
     }
   })

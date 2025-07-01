@@ -14,7 +14,7 @@ for worker_dir in worker/*/; do
     fi
 done
 
-echo "Found worker regions: ${WORKER_REGIONS[@]}"
+echo "Found worker regions: ${WORKER_REGIONS[*]}"
 
 # Teardown all workers
 echo "Tearing down worker regions..."

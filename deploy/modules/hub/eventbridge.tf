@@ -11,7 +11,7 @@ module "hub_eventbridge" {
 
   create_bus = false
   # Create IAM role for EventBridge
-  create_role     = true
+  create_role = true
 
   attach_policy_statements = true
   policy_statements = {
@@ -81,14 +81,14 @@ module "cross_region_eventbridge" {
 
   create_bus = false
   # Create IAM role for EventBridge cross-region
-  create_role     = true
-  role_name       = "${var.prefix}-hub-eventbridge-${each.value}-role"
+  create_role = true
+  role_name   = "${var.prefix}-hub-eventbridge-${each.value}-role"
 
   attach_policy_statements = true
   policy_statements = {
     events = {
-      effect    = "Allow"
-      actions   = ["events:PutEvents"]
+      effect  = "Allow"
+      actions = ["events:PutEvents"]
       resources = [
         "arn:aws:events:${each.value}:${data.aws_caller_identity.current.account_id}:event-bus/default"
       ]
@@ -102,7 +102,7 @@ module "cross_region_eventbridge" {
         source      = ["${var.prefix}.spotorchestrator"]
         detail-type = ["SpotInstanceRequest"]
         detail = {
-          "region": [each.value]
+          "region" : [each.value]
         }
       })
     }

@@ -93,7 +93,7 @@ if [ "$INCLUDE_HUB_AS_WORKER" = true ]; then
 fi
 
 # Remove duplicates from worker regions while preserving order
-WORKER_REGIONS=($(echo "${WORKER_REGIONS[@]}" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' '))
+mapfile -t WORKER_REGIONS < <(printf '%s\n' "${WORKER_REGIONS[@]}" | awk '!seen[$0]++')
 
 # Create hub tfvars
 cat > hub/terraform.tfvars << EOF
