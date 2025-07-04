@@ -1,4 +1,4 @@
-# AWS Spot Instance Management System
+# AWS Spot Instance Cross-region Orchestration
 
 A cost-effective system for managing AWS Spot Instances across multiple regions using a hub-worker architecture. The system automatically finds optimal regions for spot instance placement, handles instance interruptions, and ensures continuous service availability.
 
@@ -104,3 +104,11 @@ curl -X POST https://{api-id}.execute-api.{region}.amazonaws.com/{stage}/spot-pr
 For more detailed information, refer to:
 - [System Documentation](AWS_Spot_Instance_Management_System_Documentation.md)
 - [API Guide](AWS_Spot_Instance_Management_System_API_Guide.md)
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the LICENSE file.

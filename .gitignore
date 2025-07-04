@@ -252,3 +252,5 @@ builds
 deploy/worker/*
 !deploy/worker/main.tf.template
 memory-bank
+.clinerules
+.claude
